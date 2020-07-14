@@ -44,7 +44,7 @@ function stringContain { [ -z "$1" ] || { [ -z "${2##*$1*}" ] && [ -n "$2" ];};}
 
 function detectRedhatBased {
     #   ========Fedora Detection========
-    RELCHECK=`cat /etc/fedora-release 2>NULL`
+    RELCHECK=`cat /etc/fedora-release 2>/dev/null`
     RET=$? # returns 0 if path exists, else return 1
     if [ $RET -eq 0 ]; then
         #   e.g.
@@ -68,7 +68,7 @@ function detectRedhatBased {
     #   ======== Oracle Detection========
     #   Need to discover Oracle Linux first, because it provides an
 	#   /etc/redhat-release that matches the upstream distribution
-    RELCHECK=`cat /etc/oracle-release 2>NULL`
+    RELCHECK=`cat /etc/oracle-release 2>/dev/null`
     RET=$? # returns 0 if path exists, else return 2
     if [ $RET -eq 0 ]; then
         #   e.g.
@@ -90,7 +90,7 @@ function detectRedhatBased {
     fi
 
     #   ======== CentOS cloud image Detection========
-    RELCHECK=`cat /etc/centos-release 2>NULL`
+    RELCHECK=`cat /etc/centos-release 2>/dev/null`
     RET=$? # returns 0 if path exists, else return 2
     if [ $RET -eq 0 ]; then
         log "/etc/centos-release = ${RELCHECK}"
@@ -116,7 +116,7 @@ function detectRedhatBased {
     fi
 
     #   ======== Red Hat Detection========
-    RELCHECK=`cat /etc/redhat-release 2>NULL`
+    RELCHECK=`cat /etc/redhat-release 2>/dev/null`
     RET=$? # returns 0 if path exists, else return 2
     if [ $RET -eq 0 ]; then
         #   e.g.
@@ -147,7 +147,7 @@ function detectRedhatBased {
     fi
 
     #   ======== Amazon Linux 2 Detection========
-    RELCHECK=`cat /etc/system-release 2>NULL`
+    RELCHECK=`cat /etc/system-release 2>/dev/null`
     RET=$?
     if [ $RET -eq 0 ]; then
         #   e.g.
@@ -176,13 +176,13 @@ function detectRedhatBased {
 }
 
 function detectDebianBased {
-    DEBCHECK=`ls /etc/debian_version 2>NULL`
+    DEBCHECK=`ls /etc/debian_version 2>/dev/null`
     RET=$?
     if [ $RET -eq 0 ]; then
         #   ========Raspbian Detection========
         #   lsb_release in Raspbian Jessie returns 'Distributor ID: Raspbian'.
         #   However, lsb_release in Raspbian Wheezy returns 'Distributor ID: Debian'.
-        ISSCHECK=`cat /etc/issue 2>NULL`
+        ISSCHECK=`cat /etc/issue 2>/dev/null`
         #   e.g.
 		#   Raspbian GNU/Linux 7 \n \l
         RET=$?
@@ -203,7 +203,7 @@ function detectDebianBased {
         #  root@fa3ec524be43:/# lsb_release -ir
 		#  Distributor ID:	Ubuntu
 		#  Release:	14.04
-        LSBRELCHECK=`lsb_release -ir 2>NULL`
+        LSBRELCHECK=`lsb_release -ir 2>/dev/null`
         RET=$?
         if [ $RET -eq 0 ]; then
             log "lsb_release -ir = ${LSBRELCHECK}"
@@ -231,7 +231,7 @@ function detectDebianBased {
 		#  DISTRIB_RELEASE=14.04
 		#  DISTRIB_CODENAME=trusty
 		#  DISTRIB_DESCRIPTION="Ubuntu 14.04.2 LTS"
-        LSBCATCHECK=`cat /etc/lsb-release 2>NULL`
+        LSBCATCHECK=`cat /etc/lsb-release 2>/dev/null`
         RET=$?
         if [ $RET -eq 0 ]; then
             log "/etc/lsb-release = ${LSBCATCHECK}"
@@ -256,7 +256,7 @@ function detectDebianBased {
         #  ========cat /etc/debian_version Debian Detection========
 		#  e.g.
 		#  buster/sid
-        DEBVERCHECK=`cat /etc/debian_version 2>NULL`
+        DEBVERCHECK=`cat /etc/debian_version 2>/dev/null`
         RET=$?
         if [ $RET -eq 0 ]; then
             log "/etc/debian_version = ${DEBVERCHECK}"
@@ -276,7 +276,7 @@ function detectAlpine {
     #  ========Alpine Detection========
     #  e.g. 
     #  TODO test alpine
-    ALPINECHECK=`cat /etc/alpine-release 2>NULL`
+    ALPINECHECK=`cat /etc/alpine-release 2>/dev/null`
     RET=$?
     if [ $RET -eq 0 ]; then
         log "/etc/alpine-release = ${ALPINECHECK}"
@@ -291,16 +291,16 @@ function detectAlpine {
 }
 
 function detectSUSE {
-    RELCHECK=`ls /etc/os-release 2>NULL`
+    RELCHECK=`ls /etc/os-release 2>/dev/null`
     RET=$?
-    SUSERELCHECK=`ls /etc/SuSE-release 2>NULL`
+    SUSERELCHECK=`ls /etc/SuSE-release 2>/dev/null`
     RET2=$?
     if [ $RET -eq 0 ]; then
-        ZYPPER=`zypper -V 2>NULL`
+        ZYPPER=`zypper -V 2>/dev/null`
         RET=$?
         if [ $RET -eq 0 ]; then
             log "zypper -V = ${ZYPPER}"
-            RELCHECK=`cat /etc/os-release 2>NULL`
+            RELCHECK=`cat /etc/os-release 2>/dev/null`
             RET=$?
             if [ $RET -eq 0 ]; then
                 log "/etc/os-release = ${RELCHECK}"
@@ -340,14 +340,15 @@ function detectSUSE {
                     return
                 fi
                 OSVER="${MATCHEARR[0]}"
+                PKGFORMAT="rpm"
             fi
         fi
     elif [ $RET2 -eq 0 ]; then
-        ZYPPER=`zypper -V 2>NULL`
+        ZYPPER=`zypper -V 2>/dev/null`
         RET=$?
         if [ $RET -eq 0 ]; then
             log "zypper -V = ${ZYPPER}"
-            SUSERELCHECK=`cat /etc/SuSE-release 2>NULL`
+            SUSERELCHECK=`cat /etc/SuSE-release 2>/dev/null`
             RET=$?
             if [ $RET -eq 0 ]; then
                 log "/etc/SuSE-release = ${SUSERELCHECK}"
@@ -356,6 +357,7 @@ function detectSUSE {
                 if [ "${#MATCHEARR[@]}" -gt 0 ]; then
                     OSNAME="opensuse"
                     OSVER="${MATCHEARR[0]}"
+                    PKGFORMAT="rpm"
                     return
                 fi
                 VERSION_MATCH=`echo "${SUSERELCHECK}" | sed -n 's/.*VERSION = \([[:digit:]]\+\).*/\1/p'`
@@ -366,6 +368,7 @@ function detectSUSE {
                     if [ "${#PATCHARR[@]}" -gt 0 ]; then
                         OSNAME="suse.linux.enterprise.server"
                         OSVER="${VERSIONARR[0]}.${PATCHARR[0]}"
+                        PKGFORMAT="rpm"
                         return
                     fi
                 fi
@@ -378,7 +381,7 @@ function detectSUSE {
 }
 
 function get_hostname {
-    HOSTNAME=`cat /proc/sys/kernel/hostname 2>NULL`
+    HOSTNAME=`cat /proc/sys/kernel/hostname 2>/dev/null`
     RET=$?
     if [ $RET -ne 0 ]; then
         log "Failed to read hostname: ${HOSTNAME}"
@@ -387,7 +390,7 @@ function get_hostname {
 }
 
 function get_machineid {
-    MACHINEID=`cat /etc/machine-id 2>NULL`
+    MACHINEID=`cat /etc/machine-id 2>/dev/null`
     RET=$?
     if [ $RET -ne 0 ]; then
         log "Failed to read machine id: ${MACHINEID}"
