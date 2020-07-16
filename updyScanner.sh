@@ -351,6 +351,7 @@ function detectSUSE {
                 fi
                 OSVER="${MATCHEARR[0]}"
                 PKGFORMAT="rpm"
+                return
             fi
         fi
     elif [ $RET2 -eq 0 ]; then
