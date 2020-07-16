@@ -541,6 +541,9 @@ function scan_and_upload {
             upload_profile
             if [ -z "${PROFILEID}" ]; then
                 log "Failed to obtain the returned profile ID."
+                log "========================================================"
+                log "| Please upload ./scanResults.json to updy.io manually |"
+                log "========================================================"
             else
                 log "Scan and upload succesful."
                 log "This machine's assigned profile ID: ${PROFILEID}"
