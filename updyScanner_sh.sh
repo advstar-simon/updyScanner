@@ -1,4 +1,5 @@
-PAYLOAD=$'#!/bin/sh
+#!/bin/sh
+PAYLOAD=$'#!/bin/bash
 # ==================================== USAGE ====================================
 # Multi-Linux Support: Fedora, Oracle Linux, CentOS, RedHat, Amazon Linux 2, Raspbian, Debian, Ubuntu, alpine, openSUSE, SUSE Enterprise.
 
@@ -626,7 +627,7 @@ get_machineid
 scan_and_upload'
 
 check_bash() {
-    BASHTEST=`ls /bin/bash`
+    BASHTEST=`ls /bin/bash >/dev/null 2>&1`
     RET=$? # returns 0 if path exists
     if [ $RET -eq 0 ]; then
         echo "/bin/bash exists, continue..."
@@ -635,27 +636,27 @@ check_bash() {
         echo "/bin/bash does not exists. Install bash to continue? (y/n):"
         read agrees
         if [ "${agrees}" == "y" ]; then
-            APKTEST=`apk info 1>/dev/null`
+            APKTEST=`apk info >/dev/null 2>&1`
             RET=$? # returns 0 if path exists, else return 2
             if [ $RET -eq 0 ]; then
                 apk add bash
-                return
+            else
+                APTTEST=`apt-get --version >/dev/null 2>&1`
+                RET=$? # returns 0 if path exists, else return 2
+                if [ $RET -eq 0 ]; then
+                    apt-get install bash
+                else
+                    YUMTEST=`yum --version >/dev/null 2>&1`
+                    RET=$? # returns 0 if path exists, else return 2
+                    if [ $RET -eq 0 ]; then
+                        yum install bash
+                    else
+                        echo "Unknown package manager, please install Bash manually before running this script."
+                    fi
+                fi
             fi
-            APTTEST=`apt-get --version 1>/dev/null`
-            RET=$? # returns 0 if path exists, else return 2
-            if [ $RET -eq 0 ]; then
-                apt-get install bash
-                return
-            fi
-            YUMTEST=`yum --version 1>/dev/null`
-            RET=$? # returns 0 if path exists, else return 2
-            if [ $RET -eq 0 ]; then
-                yum install bash
-                return
-            fi
-            echo "Unknown package manager, please install Bash manually before running this script."
         fi
-        BASHTEST=`ls /bin/bash`
+        BASHTEST=`ls /bin/bash >/dev/null 2>&1`
         RET=$? # returns 0 if path exists
         if [ ! $RET -eq 0 ]; then
             echo "Please install bash manually before running this script."
@@ -664,6 +665,7 @@ check_bash() {
         fi
     fi
 }
+
 BASH_READY="F"
 check_bash
 if [ "${BASH_READY}" == "T" ]; then
