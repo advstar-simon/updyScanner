@@ -1,4 +1,4 @@
-PAYLOAD=$'#!/bin/bash
+PAYLOAD='#!/bin/bash
 # ==================================== USAGE ====================================
 # Multi-Linux Support: Fedora, Oracle Linux, CentOS, RedHat, Amazon Linux 2, Raspbian, Debian, Ubuntu, alpine, openSUSE, SUSE Enterprise.
 
@@ -32,18 +32,18 @@ fail()
 
 trim()
 {
-    TRIMED=`echo "$1" | sed -n \'s/^[[:blank:]]*\\(.*\\)/\\1/ ; s/[[:blank:]]*$//p\'`
+    TRIMED=`echo "$1" | sed -n '"'"'s/^[[:blank:]]*\\(.*\\)/\\1/ ; s/[[:blank:]]*$//p'"'"'`
 }
 
 trim_and_to_lower()
 {
-    TRIMED=`echo "$1" | sed -n \'s/^[[:blank:]]*\\(.*\\)/\\L\\1/ ; s/[[:blank:]]*$//p\'`
+    TRIMED=`echo "$1" | sed -n '"'"'s/^[[:blank:]]*\\(.*\\)/\\L\\1/ ; s/[[:blank:]]*$//p'"'"'`
 }
 
 split_lines()
 {
     SAVEIFS=$IFS
-    IFS=$\'\\n\'
+    IFS=$'"'"'\\n'"'"'
     SPLITED=($1)
     IFS=$SAVEIFS
 }
@@ -51,7 +51,7 @@ split_lines()
 split_version()
 {
     SAVEIFS=$IFS
-    IFS=$\'. \\t\\n\'
+    IFS=$'"'"'. \\t\\n'"'"'
     SPLITED=($1)
     IFS=$SAVEIFS
 }
@@ -72,7 +72,7 @@ detectRedhatBased()
         RELARR=(${TRIMED})
         if [ ${#RELARR[@]} -gt 2 ] && [ "${RELARR[0]}" == "fedora" ]; then
             OSNAME="fedora"
-            OSVER=`echo "${RELCHECK}" | sed -n \'s/^.*release[[:space:]]\\+\\([[:alnum:].]\\+\\).*$/\\1/p\'`
+            OSVER=`echo "${RELCHECK}" | sed -n '"'"'s/^.*release[[:space:]]\\+\\([[:alnum:].]\\+\\).*$/\\1/p'"'"'`
             PKGFORMAT=rpm
             return
         else
@@ -92,7 +92,7 @@ detectRedhatBased()
         #   e.g.
 		#   Oracle Linux Server release 8.2
         log "/etc/oracle-release = ${RELCHECK}"
-        REGEX_MATCHES=`echo "${RELCHECK}" | sed -n \'s/^\\(.*\\)[[:space:]]release[[:space:]]\\([[:digit:]][[:digit:].]*\\).*/\\1\\n\\2/p\'`
+        REGEX_MATCHES=`echo "${RELCHECK}" | sed -n '"'"'s/^\\(.*\\)[[:space:]]release[[:space:]]\\([[:digit:]][[:digit:].]*\\).*/\\1\\n\\2/p'"'"'`
         split_lines "${REGEX_MATCHES}"
         if [ ${#SPLITED[@]} -eq 2 ]; then
             OSNAME="oracle"
@@ -112,7 +112,7 @@ detectRedhatBased()
     RET=$? # returns 0 if path exists, else return 2
     if [ $RET -eq 0 ]; then
         log "/etc/centos-release = ${RELCHECK}"
-        REGEX_MATCHES=`echo "${RELCHECK}" | sed -n \'s/^\\(.*\\)[[:space:]]release[[:space:]]\\([[:digit:]][[:digit:].]*\\).*/\\1\\n\\2/p\'`
+        REGEX_MATCHES=`echo "${RELCHECK}" | sed -n '"'"'s/^\\(.*\\)[[:space:]]release[[:space:]]\\([[:digit:]][[:digit:].]*\\).*/\\1\\n\\2/p'"'"'`
         trim_and_to_lower "${REGEX_MATCHES}"
         split_lines "${TRIMED}"
         if [ ${#SPLITED[@]} -eq 2 ]; then
@@ -140,7 +140,7 @@ detectRedhatBased()
         #   e.g.
 		#   Oracle Linux Server release 8.2
         log "/etc/redhat-release = ${RELCHECK}"
-        REGEX_MATCHES=`echo "${RELCHECK}" | sed -n \'s/^\\(.*\\)[[:space:]]release[[:space:]]\\([[:digit:]][[:digit:].]*\\).*/\\1\\n\\2/p\'`
+        REGEX_MATCHES=`echo "${RELCHECK}" | sed -n '"'"'s/^\\(.*\\)[[:space:]]release[[:space:]]\\([[:digit:]][[:digit:].]*\\).*/\\1\\n\\2/p'"'"'`
         trim_and_to_lower "${REGEX_MATCHES}"
         split_lines "${TRIMED}"
         if [ ${#SPLITED[@]} -eq 2 ]; then
@@ -199,8 +199,8 @@ detectDebianBased()
     RET=$?
     if [ $RET -eq 0 ]; then
         #   ========Raspbian Detection========
-        #   lsb_release in Raspbian Jessie returns \'Distributor ID: Raspbian\'.
-        #   However, lsb_release in Raspbian Wheezy returns \'Distributor ID: Debian\'.
+        #   lsb_release in Raspbian Jessie returns '"'"'Distributor ID: Raspbian'"'"'.
+        #   However, lsb_release in Raspbian Wheezy returns '"'"'Distributor ID: Debian'"'"'.
         ISSCHECK=`cat /etc/issue 2>/dev/null`
         #   e.g.
 		#   Raspbian GNU/Linux 7 \\n \\l
@@ -228,7 +228,7 @@ detectDebianBased()
             log "lsb_release -ir = ${LSBRELCHECK}"
             trim "${LSBRELCHECK}"
             LSBRELCHECK="${TRIMED}"
-            REGEX_MATCHES=`echo "${LSBRELCHECK}" | sed -n \'N;s/^Distributor ID:[[:space:]]*\\(.\\+\\?\\)\\n*Release:[[:space:]]*\\(.\\+\\?\\)$/\\1\\2/p\'`
+            REGEX_MATCHES=`echo "${LSBRELCHECK}" | sed -n '"'"'N;s/^Distributor ID:[[:space:]]*\\(.\\+\\?\\)\\n*Release:[[:space:]]*\\(.\\+\\?\\)$/\\1\\2/p'"'"'`
             split_lines "${REGEX_MATCHES}"
             if [ ${#SPLITED[@]} -eq 0 ]; then
                 OSNAME="debian/ubuntu"
@@ -256,7 +256,7 @@ detectDebianBased()
             log "/etc/lsb-release = ${LSBCATCHECK}"
             trim "${LSBCATCHECK}"
             LSBCATCHECK="${TRIMED}"
-            REGEX_MATCHES=`echo "${LSBCATCHECK}" | sed -n \'N;s/^DISTRIB_ID=\\(.\\+\\?\\)\\n*DISTRIB_RELEASE=\\(.\\+\\?\\)\\n*$/\\1\\2/p\'`
+            REGEX_MATCHES=`echo "${LSBCATCHECK}" | sed -n '"'"'N;s/^DISTRIB_ID=\\(.\\+\\?\\)\\n*DISTRIB_RELEASE=\\(.\\+\\?\\)\\n*$/\\1\\2/p'"'"'`
             split_lines "${REGEX_MATCHES}"
             if [ ${#SPLITED[@]} -eq 0 ]; then
                 OSNAME="debian/ubuntu"
@@ -354,7 +354,7 @@ detectSUSE()
                     log "Failed to parse SUSE edition: ${RELCHECK}"
                     return
                 fi
-                REGEX_MATCHES=`echo "${RELCHECK}" | sed -n \'s/.*VERSION_ID=\\"\\(.\\+\\)\\".*/\\1/p\'`
+                REGEX_MATCHES=`echo "${RELCHECK}" | sed -n '"'"'s/.*VERSION_ID=\\"\\(.\\+\\)\\".*/\\1/p'"'"'`
                 MATCHEARR=("${REGEX_MATCHES}")
                 if [ "${#MATCHEARR[@]}" -eq 0 ]; then
                     log "Failed to parse SUSE Linux version: ${RELCHECK}"
@@ -373,7 +373,7 @@ detectSUSE()
             RET=$?
             if [ $RET -eq 0 ]; then
                 log "/etc/SuSE-release = ${SUSERELCHECK}"
-                REGEX_MATCHES=`echo "${SUSERELCHECK}" | sed -n \'s/.*openSUSE \\([[:digit:]]\\+[[:digit:].]*\\).*/\\1/p\'`
+                REGEX_MATCHES=`echo "${SUSERELCHECK}" | sed -n '"'"'s/.*openSUSE \\([[:digit:]]\\+[[:digit:].]*\\).*/\\1/p'"'"'`
                 MATCHEARR=("${REGEX_MATCHES}")
                 if [ "${#MATCHEARR[@]}" -gt 0 ]; then
                     OSNAME="opensuse"
@@ -381,10 +381,10 @@ detectSUSE()
                     PKGFORMAT="rpm"
                     return
                 fi
-                VERSION_MATCH=`echo "${SUSERELCHECK}" | sed -n \'s/.*VERSION = \\([[:digit:]]\\+\\).*/\\1/p\'`
+                VERSION_MATCH=`echo "${SUSERELCHECK}" | sed -n '"'"'s/.*VERSION = \\([[:digit:]]\\+\\).*/\\1/p'"'"'`
                 VERSIONARR=("${VERSION_MATCH}")
                 if [ "${#VERSIONARR[@]}" -gt 0 ]; then
-                    PATCH_MATCH=`echo "${SUSERELCHECK}" | sed -n \'s/.*PATCHLEVEL = \\([[:digit:]]\\+\\).*/\\1/p\'`
+                    PATCH_MATCH=`echo "${SUSERELCHECK}" | sed -n '"'"'s/.*PATCHLEVEL = \\([[:digit:]]\\+\\).*/\\1/p'"'"'`
                     PATCHARR=("${PATCH_MATCH}")
                     if [ "${#PATCHARR[@]}" -gt 0 ]; then
                         OSNAME="suse.linux.enterprise.server"
@@ -424,33 +424,33 @@ get_machineid()
 dpkg_scan_package()
 {
     log "Scanning installed packages with dpkg-query."
-    if [ $PKGFORMAT == \'dpkg\' ]; then
+    if [ $PKGFORMAT == '"'"'dpkg'"'"' ]; then
         dpkgQuery=$(dpkg-query -W -f="\\${binary:Package},\\${db:Status-Abbrev},\\${Version},\\${Source},\\${source:Version}\\n")
-        PACKAGE_ATTRIBUTES=`echo "${dpkgQuery}" | sed -n \'$ ! s/\\([^,]\\+\\),\\([^,]\\+\\),\\([^,]\\+\\),\\([^,]*\\),\\([^,]\\+\\)$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t},/p; $ s/\\([^,]\\+\\),\\([^,]\\+\\),\\([^,]\\+\\),\\([^,]*\\),\\([^,]\\+\\)$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t}/p\'`
+        PACKAGE_ATTRIBUTES=`echo "${dpkgQuery}" | sed -n '"'"'$ ! s/\\([^,]\\+\\),\\([^,]\\+\\),\\([^,]\\+\\),\\([^,]*\\),\\([^,]\\+\\)$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t},/p; $ s/\\([^,]\\+\\),\\([^,]\\+\\),\\([^,]\\+\\),\\([^,]*\\),\\([^,]\\+\\)$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t}/p'"'"'`
     fi
 }
 
 rpm_scan_package()
 {
     log "Scanning installed packages with rpm."
-    if [ "$PKGFORMAT" == \'rpm\' ]; then
+    if [ "$PKGFORMAT" == '"'"'rpm'"'"' ]; then
         if [ "${OSNAME}" == "suse.linux.enterprise.server" ]; then
             split_version "${OSVER}"
             if [ ${#SPLITED[@]} -gt 0 ] && [[ ${SPLITED[0]} =~ ^-?[0-9]+$ ]] && [ ${SPLITED[0]} -lt 12 ]; then
                 RPMRESULT=$(rpm -qa --queryformat "%{NAME};%{EPOCH};%{VERSION};%{RELEASE};%{ARCH}\\n")
-                PACKAGE_ATTRIBUTES=`echo "${RPMRESULT}" | sed -n \'$ ! s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t},/p; $ s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t}/p\'`
+                PACKAGE_ATTRIBUTES=`echo "${RPMRESULT}" | sed -n '"'"'$ ! s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t},/p; $ s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t}/p'"'"'`
             else
                 RPMRESULT=$(rpm -qa --queryformat "%{NAME};%{EPOCHNUM};%{VERSION};%{RELEASE};%{ARCH}\\n")
-                PACKAGE_ATTRIBUTES=`echo "${RPMRESULT}" | sed -n \'$ ! s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t},/p; $ s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t}/p\'`
+                PACKAGE_ATTRIBUTES=`echo "${RPMRESULT}" | sed -n '"'"'$ ! s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t},/p; $ s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t}/p'"'"'`
             fi
         else
             split_version "${OSVER}"
             if [ ${#SPLITED[@]} -gt 0 ] && [[ ${SPLITED[0]} =~ ^-?[0-9]+$ ]] && [ ${SPLITED[0]} -lt 6 ]; then
                 RPMRESULT=$(rpm -qa --queryformat "%{NAME};%{EPOCH};%{VERSION};%{RELEASE};%{ARCH}\\n")
-                PACKAGE_ATTRIBUTES=`echo "${RPMRESULT}" | sed -n \'$ ! s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t},/p; $ s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t}/p\'`
+                PACKAGE_ATTRIBUTES=`echo "${RPMRESULT}" | sed -n '"'"'$ ! s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t},/p; $ s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t}/p'"'"'`
             else
                 RPMRESULT=$(rpm -qa --queryformat "%{NAME};%{EPOCHNUM};%{VERSION};%{RELEASE};%{ARCH}\\n")
-                PACKAGE_ATTRIBUTES=`echo "${RPMRESULT}" | sed -n \'$ ! s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t},/p; $ s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t}/p\'`
+                PACKAGE_ATTRIBUTES=`echo "${RPMRESULT}" | sed -n '"'"'$ ! s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t},/p; $ s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t}/p'"'"'`
             fi
         fi
     fi
@@ -459,9 +459,9 @@ rpm_scan_package()
 apk_scan_package()
 {
     log "Scanning installed packages with apk."
-    if [ $PKGFORMAT == \'apk\' ]; then
+    if [ $PKGFORMAT == '"'"'apk'"'"' ]; then
         apkQuery=$(apk info -v)
-        PACKAGE_ATTRIBUTES=`echo "${apkQuery}" | sed -n \'$ ! s/\\(.*\\)-\\([[:alnum:].]*\\)-\\([[:alnum:].]*\\)$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\2-\\3"\\n\\t\\t}/p\'`
+        PACKAGE_ATTRIBUTES=`echo "${apkQuery}" | sed -n '"'"'$ ! s/\\(.*\\)-\\([[:alnum:].]*\\)-\\([[:alnum:].]*\\)$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\2-\\3"\\n\\t\\t}/p'"'"'`
     fi
 }
 
@@ -497,7 +497,7 @@ installCurl()
     if [[ $? != 0 ]]; then
         log "Curl not installed"
         log "Installing curl"
-        if [[ "$PKGFORMAT" == \'rpm\' ]]; then
+        if [[ "$PKGFORMAT" == '"'"'rpm'"'"' ]]; then
             type zypper &>/dev/null
             if [[ $? -eq 0 ]]; then
                 # sles based
@@ -505,9 +505,9 @@ installCurl()
             else
                 stdbuf -o 0 yum install -y curl 2>&1 | tee -a ${LOGFILE}
             fi
-        elif [[ "$PKGFORMAT" == \'dpkg\' ]]; then
+        elif [[ "$PKGFORMAT" == '"'"'dpkg'"'"' ]]; then
             apt-get install -y curl 2>&1 | tee -a  ${LOGFILE}
-        elif [[ "$PKGFORMAT" == \'apk\' ]]; then
+        elif [[ "$PKGFORMAT" == '"'"'apk'"'"' ]]; then
             apk add curl 2>&1 | tee -a  ${LOGFILE}
         fi
     fi
@@ -524,7 +524,7 @@ upload_profile()
     log "Uploading scan results with curl."
     IMPORT_URL="http://import.10.0.2.100.nip.io/?site_id=${SITE_ID}"
     CURLRET=$(curl -H "X-IMPORT-KEY: ${IMPORT_KEY}" --request POST --data @scanResults.json --cookie-jar cookies.txt "${IMPORT_URL}")
-    PROFILEID=`echo "${CURLRET}" | sed -n \'s/.*\\("id":\\)"\\([[:alnum:]-]*\\)".*/\\2/p\'`
+    PROFILEID=`echo "${CURLRET}" | sed -n '"'"'s/.*\\("id":\\)"\\([[:alnum:]-]*\\)".*/\\2/p'"'"'`
 }
 
 scan_and_upload()
@@ -566,7 +566,7 @@ scan_and_upload()
                 log "========================================================"
             else
                 log "Scan and upload succesful."
-                log "This machine\'s assigned profile ID: ${PROFILEID}"
+                log "This machine'"'"'s assigned profile ID: ${PROFILEID}"
             fi
         else
             log "Scan completes"
@@ -609,10 +609,10 @@ else
     log "Received [import key] and [site ID] parameters, scan results will be uploaded automatically."
 fi
 if [ ! -z "${TAGS}" ]; then
-    log "Scan results will be given the user tag \'${TAGS}\'"
+    log "Scan results will be given the user tag '"'"'${TAGS}'"'"'"
 fi
 if [ ! -z "${PROFILENAME}" ]; then
-    log "User defined hostname \'${PROFILENAME}\' is given to override scanned hostname."
+    log "User defined hostname '"'"'${PROFILENAME}'"'"' is given to override scanned hostname."
 fi
 
 #====================Initialize Variables===================
@@ -670,6 +670,6 @@ check_bash() {
 
 BASH_READY="F"
 check_bash
-if [ "${BASH_READY}" == "T" ]; then
+if [ "${BASH_READY}" = "T" ]; then
     /bin/bash -c "${PAYLOAD}" "payload" "$@"
 fi
