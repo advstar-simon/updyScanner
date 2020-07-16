@@ -4,8 +4,7 @@ PAYLOAD='#!/bin/bash
 
 LOGFILE="./updy_scan.log"
 
-usage()
-{ 
+function usage { 
     echo "Usage: $0 [-k import_key] [-i site_id] [-t user_tag] [-n hostname]
             -k                  Optional user import key. If both import key and site ID are present, the script will automatically upload scanned results; otherwise a scanResults.json file is generated for manual upload.
             -i                  Optional site ID that the scanned machine belongs to. If both import key and site ID are present, the script will automatically upload scanned results; otherwise a scanResults.json file is generated for manual upload.
@@ -15,52 +14,45 @@ usage()
     exit 1; 
 }
 
-log()
-{
+function log {
     echo -n `date`
     echo " | "$*
     echo -n `date` >> $LOGFILE
     echo " | "$* >> $LOGFILE
 }
 
-fail()
-{
+function fail {
     log " Failed:"$1
     echo $1
     exit 1
 }
 
-trim()
-{
+function trim {
     TRIMED=`echo "$1" | sed -n '"'"'s/^[[:blank:]]*\\(.*\\)/\\1/ ; s/[[:blank:]]*$//p'"'"'`
 }
 
-trim_and_to_lower()
-{
+function trim_and_to_lower {
     TRIMED=`echo "$1" | sed -n '"'"'s/^[[:blank:]]*\\(.*\\)/\\L\\1/ ; s/[[:blank:]]*$//p'"'"'`
 }
 
-split_lines()
-{
+function split_lines {
     SAVEIFS=$IFS
     IFS=$'"'"'\\n'"'"'
     SPLITED=($1)
     IFS=$SAVEIFS
 }
 
-split_version()
-{
+function split_version {
     SAVEIFS=$IFS
     IFS=$'"'"'. \\t\\n'"'"'
     SPLITED=($1)
     IFS=$SAVEIFS
 }
 
-stringContain() { [ -z "$1" ] || { [ -z "${2##*$1*}" ] && [ -n "$2" ];};}
+function stringContain { [ -z "$1" ] || { [ -z "${2##*$1*}" ] && [ -n "$2" ];};}
 
 
-detectRedhatBased()
-{
+function detectRedhatBased {
     #   ========Fedora Detection========
     RELCHECK=`cat /etc/fedora-release 2>/dev/null`
     RET=$? # returns 0 if path exists, else return 1
@@ -193,8 +185,7 @@ detectRedhatBased()
     log "Not Redhat-based Linux."
 }
 
-detectDebianBased()
-{
+function detectDebianBased {
     DEBCHECK=`ls /etc/debian_version 2>/dev/null`
     RET=$?
     if [ $RET -eq 0 ]; then
@@ -291,8 +282,7 @@ detectDebianBased()
     fi
 }
 
-detectAlpine()
-{
+function detectAlpine {
     #  ========Alpine Detection========
     #  e.g. 3.12.0
     #  TODO test alpine
@@ -310,8 +300,7 @@ detectAlpine()
     fi
 }
 
-detectSUSE()
-{
+function detectSUSE {
     RELCHECK=`ls /etc/os-release 2>/dev/null`
     RET=$?
     SUSERELCHECK=`ls /etc/SuSE-release 2>/dev/null`
@@ -401,8 +390,7 @@ detectSUSE()
     log "Not SUSE Linux."
 }
 
-get_hostname()
-{
+function get_hostname {
     PROFILENAME=`cat /proc/sys/kernel/hostname 2>/dev/null`
     RET=$?
     if [ $RET -ne 0 ]; then
@@ -411,8 +399,7 @@ get_hostname()
     fi
 }
 
-get_machineid()
-{
+function get_machineid {
     MACHINEID=`cat /etc/machine-id 2>/dev/null`
     RET=$?
     if [ $RET -ne 0 ]; then
@@ -421,8 +408,7 @@ get_machineid()
     fi
 }
 
-dpkg_scan_package()
-{
+function dpkg_scan_package {
     log "Scanning installed packages with dpkg-query."
     if [ $PKGFORMAT == '"'"'dpkg'"'"' ]; then
         dpkgQuery=$(dpkg-query -W -f="\\${binary:Package},\\${db:Status-Abbrev},\\${Version},\\${Source},\\${source:Version}\\n")
@@ -430,8 +416,7 @@ dpkg_scan_package()
     fi
 }
 
-rpm_scan_package()
-{
+function rpm_scan_package {
     log "Scanning installed packages with rpm."
     if [ "$PKGFORMAT" == '"'"'rpm'"'"' ]; then
         if [ "${OSNAME}" == "suse.linux.enterprise.server" ]; then
@@ -456,8 +441,7 @@ rpm_scan_package()
     fi
 }
 
-apk_scan_package()
-{
+function apk_scan_package {
     log "Scanning installed packages with apk."
     if [ $PKGFORMAT == '"'"'apk'"'"' ]; then
         apkQuery=$(apk info -v)
@@ -466,8 +450,7 @@ apk_scan_package()
 }
 
 
-make_upload_json_file()
-{   
+function make_upload_json_file {
     log "Creating scan results file for upload."
     # PACKAGE_ATTRIBUTES
     # { 
@@ -488,8 +471,7 @@ ${PACKAGE_ATTRIBUTES}
     echo "$JSON" > scanResults.json
 }
 
-installCurl()
-{
+function installCurl {
     #
     # Ensure curl is available
     #
@@ -519,16 +501,14 @@ installCurl()
     fi
 }
 
-upload_profile()
-{
+function upload_profile {
     log "Uploading scan results with curl."
     IMPORT_URL="http://import.10.0.2.100.nip.io/?site_id=${SITE_ID}"
     CURLRET=$(curl -H "X-IMPORT-KEY: ${IMPORT_KEY}" --request POST --data @scanResults.json --cookie-jar cookies.txt "${IMPORT_URL}")
     PROFILEID=`echo "${CURLRET}" | sed -n '"'"'s/.*\\("id":\\)"\\([[:alnum:]-]*\\)".*/\\2/p'"'"'`
 }
 
-scan_and_upload()
-{
+function scan_and_upload {
     if [[ "${OSNAME}" == "unknown" ]]; then
         detectDebianBased
     fi
@@ -560,7 +540,7 @@ scan_and_upload()
             installCurl
             upload_profile
             if [ -z "${PROFILEID}" ]; then
-                log "Failed to obtain the returned profile ID. PROFILEID=${PROFILEID}"
+                log "Failed to obtain the returned profile ID."
                 log "========================================================"
                 log "| Please upload ./scanResults.json to updy.io manually |"
                 log "========================================================"
@@ -670,6 +650,7 @@ check_bash() {
 BASH_READY="F"
 check_bash
 if [ "${BASH_READY}" = "T" ]; then
+    rm payload.sh >/dev/null 2>&1
     echo "$PAYLOAD" >> payload.sh
     /bin/bash ./payload.sh "$@"
     rm payload.sh
