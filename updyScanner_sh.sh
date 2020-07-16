@@ -1,4 +1,3 @@
-#!/bin/sh
 PAYLOAD=$'#!/bin/bash
 # ==================================== USAGE ====================================
 # Multi-Linux Support: Fedora, Oracle Linux, CentOS, RedHat, Amazon Linux 2, Raspbian, Debian, Ubuntu, alpine, openSUSE, SUSE Enterprise.
