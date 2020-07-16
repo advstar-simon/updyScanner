@@ -630,7 +630,7 @@ check_bash() {
     RET=$? # returns 0 if path exists
     if [ $RET -eq 0 ]; then
         echo "/bin/bash exists, continue..."
-        BASH_READY=1
+        BASH_READY="T"
     else
         echo "/bin/bash does not exists. Install bash to continue? (y/n):"
         read agrees
@@ -660,12 +660,12 @@ check_bash() {
         if [ ! $RET -eq 0 ]; then
             echo "Please install bash manually before running this script."
         else
-            BASH_READY=1
+            BASH_READY="T"
         fi
     fi
 }
-BASH_READY=0
+BASH_READY=F
 check_bash
-if [ BASH_READY -eq 1 ]; then
+if [ BASH_READY == "T" ]; then
     /bin/bash -c "${PAYLOAD}" "payload" "$@"
 fi
