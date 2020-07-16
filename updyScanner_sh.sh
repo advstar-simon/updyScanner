@@ -467,7 +467,7 @@ apk_scan_package()
 
 
 make_upload_json_file()
-{
+{   
     log "Creating scan results file for upload."
     # PACKAGE_ATTRIBUTES
     # { 
@@ -560,7 +560,7 @@ scan_and_upload()
             installCurl
             upload_profile
             if [ -z "${PROFILEID}" ]; then
-                log "Failed to obtain the returned profile ID."
+                log "Failed to obtain the returned profile ID. PROFILEID=${PROFILEID}"
                 log "========================================================"
                 log "| Please upload ./scanResults.json to updy.io manually |"
                 log "========================================================"
@@ -637,7 +637,7 @@ check_bash() {
     else
         echo "/bin/bash does not exists. Install bash to continue? (y/n):"
         read agrees
-        if [ "${agrees}" == "y" ]; then
+        if [ "${agrees}" = "y" ]; then
             APKTEST=`apk info >/dev/null 2>&1`
             RET=$? # returns 0 if path exists, else return 2
             if [ $RET -eq 0 ]; then
@@ -667,9 +667,10 @@ check_bash() {
         fi
     fi
 }
-
 BASH_READY="F"
 check_bash
 if [ "${BASH_READY}" = "T" ]; then
-    /bin/bash -c "${PAYLOAD}" "payload" "$@"
+    echo "$PAYLOAD" >> payload.sh
+    /bin/bash ./payload.sh "$@"
+    rm payload.sh
 fi
