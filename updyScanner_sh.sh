@@ -28,18 +28,18 @@ function fail {
 }
 
 function trim {
-    TRIMED=`echo "$1" | sed -n '"'"'s/^[[:blank:]]*\\(.*\\)/\\1/ ; s/[[:blank:]]*$//p'"'"'`
+    TRIMED=`echo "$1" | sed -n '"'"'s/^[[:blank:]]*\(.*\)/\1/ ; s/[[:blank:]]*$//p'"'"'`
     log "TRIMED=${TRIMED}"
 }
 
 function trim_and_to_lower {
-    TRIMED=`echo "$1" | sed -n '"'"'s/^[[:blank:]]*\\(.*\\)/\\L\\1/ ; s/[[:blank:]]*$//p'"'"'`
+    TRIMED=`echo "$1" | sed -n '"'"'s/^[[:blank:]]*\(.*\)/\L\1/ ; s/[[:blank:]]*$//p'"'"'`
     log "TRIMED_AND_LOWER=${TRIMED}"
 }
 
 function split_lines {
     SAVEIFS=$IFS
-    IFS=$'"'"'\\n'"'"'
+    IFS=$'"'"'\n'"'"'
     SPLITED=($1)
     IFS=$SAVEIFS
     log "split_lines=${SPLITED[@]}"
@@ -47,7 +47,7 @@ function split_lines {
 
 function split_version {
     SAVEIFS=$IFS
-    IFS=$'"'"'. \\t\\n'"'"'
+    IFS=$'"'"'. \t\n'"'"'
     SPLITED=($1)
     IFS=$SAVEIFS
     log "split_version=${SPLITED[@]}"
@@ -68,7 +68,7 @@ function detectRedhatBased {
         RELARR=(${TRIMED})
         if [ ${#RELARR[@]} -gt 2 ] && [ "${RELARR[0]}" == "fedora" ]; then
             OSNAME="fedora"
-            OSVER=`echo "${RELCHECK}" | sed -n '"'"'s/^.*release[[:space:]]\\+\\([[:alnum:].]\\+\\).*$/\\1/p'"'"'`
+            OSVER=`echo "${RELCHECK}" | sed -n '"'"'s/^.*release[[:space:]]\+\([[:alnum:].]\+\).*$/\1/p'"'"'`
             PKGFORMAT=rpm
             return
         else
@@ -88,7 +88,7 @@ function detectRedhatBased {
         #   e.g.
 		#   Oracle Linux Server release 8.2
         log "/etc/oracle-release = ${RELCHECK}"
-        REGEX_MATCHES=`echo "${RELCHECK}" | sed -n '"'"'s/^\\(.*\\)[[:space:]]release[[:space:]]\\([[:digit:]][[:digit:].]*\\).*/\\1\\n\\2/p'"'"'`
+        REGEX_MATCHES=`echo "${RELCHECK}" | sed -n '"'"'s/^\(.*\)[[:space:]]release[[:space:]]\([[:digit:]][[:digit:].]*\).*/\1\n\2/p'"'"'`
         split_lines "${REGEX_MATCHES}"
         if [ ${#SPLITED[@]} -eq 2 ]; then
             OSNAME="oracle"
@@ -108,7 +108,7 @@ function detectRedhatBased {
     RET=$? # returns 0 if path exists, else return 2
     if [ $RET -eq 0 ]; then
         log "/etc/centos-release = ${RELCHECK}"
-        REGEX_MATCHES=`echo "${RELCHECK}" | sed -n '"'"'s/^\\(.*\\)[[:space:]]release[[:space:]]\\([[:digit:]][[:digit:].]*\\).*/\\1\\n\\2/p'"'"'`
+        REGEX_MATCHES=`echo "${RELCHECK}" | sed -n '"'"'s/^\(.*\)[[:space:]]release[[:space:]]\([[:digit:]][[:digit:].]*\).*/\1\n\2/p'"'"'`
         trim_and_to_lower "${REGEX_MATCHES}"
         split_lines "${TRIMED}"
         if [ ${#SPLITED[@]} -eq 2 ]; then
@@ -137,7 +137,7 @@ function detectRedhatBased {
 		#   Oracle Linux Server release 8.2
         log "/etc/redhat-release = ${RELCHECK}"
         trim_and_to_lower "${RELCHECK}"
-        REGEX_MATCHES=`echo "${TRIMED}" | sed -n '"'"'s/^\\(.*\\)[[:space:]]release[[:space:]]\\([[:digit:]][[:digit:].]*\\).*/\\1\\n\\2/p'"'"'`
+        REGEX_MATCHES=`echo "${TRIMED}" | sed -n '"'"'s/^\(.*\)[[:space:]]release[[:space:]]\([[:digit:]][[:digit:].]*\).*/\1\n\2/p'"'"'`
         split_lines "${REGEX_MATCHES}"
         if [ ${#SPLITED[@]} -eq 2 ]; then
             if [ "${SPLITED[0]}" == "centos" ] || [ "${SPLITED[0]}" == "centos linux" ]; then
@@ -198,7 +198,7 @@ function detectDebianBased {
         #   However, lsb_release in Raspbian Wheezy returns '"'"'Distributor ID: Debian'"'"'.
         ISSCHECK=`cat /etc/issue 2>/dev/null`
         #   e.g.
-		#   Raspbian GNU/Linux 7 \\n \\l
+		#   Raspbian GNU/Linux 7 \n \l
         RET=$?
         if [ $RET -eq 0 ]; then
             log "/etc/issue = ${ISSCHECK}"
@@ -223,7 +223,7 @@ function detectDebianBased {
             log "lsb_release -ir = ${LSBRELCHECK}"
             trim "${LSBRELCHECK}"
             LSBRELCHECK="${TRIMED}"
-            REGEX_MATCHES=`echo "${LSBRELCHECK}" | sed -n '"'"'N;s/^Distributor ID:[[:space:]]*\\(.\\+\\?\\)\\n*Release:[[:space:]]*\\(.\\+\\?\\)$/\\1\\2/p'"'"'`
+            REGEX_MATCHES=`echo "${LSBRELCHECK}" | sed -n '"'"'N;s/^Distributor ID:[[:space:]]*\(.\+\?\)\n*Release:[[:space:]]*\(.\+\?\)$/\1\2/p'"'"'`
             split_lines "${REGEX_MATCHES}"
             if [ ${#SPLITED[@]} -eq 0 ]; then
                 OSNAME="debian/ubuntu"
@@ -251,7 +251,7 @@ function detectDebianBased {
             log "/etc/lsb-release = ${LSBCATCHECK}"
             trim "${LSBCATCHECK}"
             LSBCATCHECK="${TRIMED}"
-            REGEX_MATCHES=`echo "${LSBCATCHECK}" | sed -n '"'"'N;s/^DISTRIB_ID=\\(.\\+\\?\\)\\n*DISTRIB_RELEASE=\\(.\\+\\?\\)\\n*$/\\1\\2/p'"'"'`
+            REGEX_MATCHES=`echo "${LSBCATCHECK}" | sed -n '"'"'N;s/^DISTRIB_ID=\(.\+\?\)\n*DISTRIB_RELEASE=\(.\+\?\)\n*$/\1\2/p'"'"'`
             split_lines "${REGEX_MATCHES}"
             if [ ${#SPLITED[@]} -eq 0 ]; then
                 OSNAME="debian/ubuntu"
@@ -331,7 +331,7 @@ function detectSUSE {
                     # BUG_REPORT_URL="https://bugs.opensuse.org"
                     # HOME_URL="https://www.opensuse.org/"
                     OSNAME="opensuse"
-                elif stringContain "NAME=\\"SLES\\"" "${RELCHECK}"; then
+                elif stringContain "NAME=\"SLES\"" "${RELCHECK}"; then
                     #=============== SUSE Linux Enterprise Example ============
                     # NAME="SLES"
                     # VERSION="12"
@@ -341,13 +341,13 @@ function detectSUSE {
                     # ANSI_COLOR="0;32"
                     # CPE_NAME="cpe:/o:suse:sles:12"
                     OSNAME="suse.linux.enterprise.server"
-                elif stringContain "NAME=\\"SLES_SAP\\"" "${RELCHECK}"; then
+                elif stringContain "NAME=\"SLES_SAP\"" "${RELCHECK}"; then
                     OSNAME="suse.linux.enterprise.server"
                 else
                     log "Failed to parse SUSE edition: ${RELCHECK}"
                     return
                 fi
-                REGEX_MATCHES=`echo "${RELCHECK}" | sed -n '"'"'s/.*VERSION_ID=\\"\\(.\\+\\)\\".*/\\1/p'"'"'`
+                REGEX_MATCHES=`echo "${RELCHECK}" | sed -n '"'"'s/.*VERSION_ID=\"\(.\+\)\".*/\1/p'"'"'`
                 MATCHEARR=("${REGEX_MATCHES}")
                 if [ "${#MATCHEARR[@]}" -eq 0 ]; then
                     log "Failed to parse SUSE Linux version: ${RELCHECK}"
@@ -366,7 +366,7 @@ function detectSUSE {
             RET=$?
             if [ $RET -eq 0 ]; then
                 log "/etc/SuSE-release = ${SUSERELCHECK}"
-                REGEX_MATCHES=`echo "${SUSERELCHECK}" | sed -n '"'"'s/.*openSUSE \\([[:digit:]]\\+[[:digit:].]*\\).*/\\1/p'"'"'`
+                REGEX_MATCHES=`echo "${SUSERELCHECK}" | sed -n '"'"'s/.*openSUSE \([[:digit:]]\+[[:digit:].]*\).*/\1/p'"'"'`
                 MATCHEARR=("${REGEX_MATCHES}")
                 if [ "${#MATCHEARR[@]}" -gt 0 ]; then
                     OSNAME="opensuse"
@@ -374,10 +374,10 @@ function detectSUSE {
                     PKGFORMAT="rpm"
                     return
                 fi
-                VERSION_MATCH=`echo "${SUSERELCHECK}" | sed -n '"'"'s/.*VERSION = \\([[:digit:]]\\+\\).*/\\1/p'"'"'`
+                VERSION_MATCH=`echo "${SUSERELCHECK}" | sed -n '"'"'s/.*VERSION = \([[:digit:]]\+\).*/\1/p'"'"'`
                 VERSIONARR=("${VERSION_MATCH}")
                 if [ "${#VERSIONARR[@]}" -gt 0 ]; then
-                    PATCH_MATCH=`echo "${SUSERELCHECK}" | sed -n '"'"'s/.*PATCHLEVEL = \\([[:digit:]]\\+\\).*/\\1/p'"'"'`
+                    PATCH_MATCH=`echo "${SUSERELCHECK}" | sed -n '"'"'s/.*PATCHLEVEL = \([[:digit:]]\+\).*/\1/p'"'"'`
                     PATCHARR=("${PATCH_MATCH}")
                     if [ "${#PATCHARR[@]}" -gt 0 ]; then
                         OSNAME="suse.linux.enterprise.server"
@@ -415,8 +415,8 @@ function get_machineid {
 function dpkg_scan_package {
     log "Scanning installed packages with dpkg-query."
     if [ $PKGFORMAT == '"'"'dpkg'"'"' ]; then
-        dpkgQuery=$(dpkg-query -W -f="\\${binary:Package},\\${db:Status-Abbrev},\\${Version},\\${Source},\\${source:Version}\\n")
-        PACKAGE_ATTRIBUTES=`echo "${dpkgQuery}" | sed -n '"'"'$ ! s/\\([^,]\\+\\),\\([^,]\\+\\),\\([^,]\\+\\),\\([^,]*\\),\\([^,]\\+\\)$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t},/p; $ s/\\([^,]\\+\\),\\([^,]\\+\\),\\([^,]\\+\\),\\([^,]*\\),\\([^,]\\+\\)$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t}/p'"'"'`
+        dpkgQuery=$(dpkg-query -W -f="\${binary:Package},\${db:Status-Abbrev},\${Version},\${Source},\${source:Version}\n")
+        PACKAGE_ATTRIBUTES=`echo "${dpkgQuery}" | sed -n '"'"'$ ! s/\([^,]\+\),\([^,]\+\),\([^,]\+\),\([^,]*\),\([^,]\+\)$/\t\t{\n\t\t\t"name": "\1",\n\t\t\t"version": "\3"\n\t\t},/p; $ s/\([^,]\+\),\([^,]\+\),\([^,]\+\),\([^,]*\),\([^,]\+\)$/\t\t{\n\t\t\t"name": "\1",\n\t\t\t"version": "\3"\n\t\t}/p'"'"'`
     fi
 }
 
@@ -426,20 +426,20 @@ function rpm_scan_package {
         if [ "${OSNAME}" == "suse.linux.enterprise.server" ]; then
             split_version "${OSVER}"
             if [ ${#SPLITED[@]} -gt 0 ] && [[ ${SPLITED[0]} =~ ^-?[0-9]+$ ]] && [ ${SPLITED[0]} -lt 12 ]; then
-                RPMRESULT=$(rpm -qa --queryformat "%{NAME};%{EPOCH};%{VERSION};%{RELEASE};%{ARCH}\\n")
-                PACKAGE_ATTRIBUTES=`echo "${RPMRESULT}" | sed -n '"'"'$ ! s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t},/p; $ s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t}/p'"'"'`
+                RPMRESULT=$(rpm -qa --queryformat "%{NAME};%{EPOCH};%{VERSION};%{RELEASE};%{ARCH}\n")
+                PACKAGE_ATTRIBUTES=`echo "${RPMRESULT}" | sed -n '"'"'$ ! s/\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\).*$/\t\t{\n\t\t\t"name": "\1",\n\t\t\t"version": "\3"\n\t\t},/p; $ s/\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\).*/\t\t{\n\t\t\t"name": "\1",\n\t\t\t"version": "\3"\n\t\t}/p'"'"'`
             else
-                RPMRESULT=$(rpm -qa --queryformat "%{NAME};%{EPOCHNUM};%{VERSION};%{RELEASE};%{ARCH}\\n")
-                PACKAGE_ATTRIBUTES=`echo "${RPMRESULT}" | sed -n '"'"'$ ! s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t},/p; $ s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t}/p'"'"'`
+                RPMRESULT=$(rpm -qa --queryformat "%{NAME};%{EPOCHNUM};%{VERSION};%{RELEASE};%{ARCH}\n")
+                PACKAGE_ATTRIBUTES=`echo "${RPMRESULT}" | sed -n '"'"'$ ! s/\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\).*$/\t\t{\n\t\t\t"name": "\1",\n\t\t\t"version": "\3"\n\t\t},/p; $ s/\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\).*/\t\t{\n\t\t\t"name": "\1",\n\t\t\t"version": "\3"\n\t\t}/p'"'"'`
             fi
         else
             split_version "${OSVER}"
             if [ ${#SPLITED[@]} -gt 0 ] && [[ ${SPLITED[0]} =~ ^-?[0-9]+$ ]] && [ ${SPLITED[0]} -lt 6 ]; then
-                RPMRESULT=$(rpm -qa --queryformat "%{NAME};%{EPOCH};%{VERSION};%{RELEASE};%{ARCH}\\n")
-                PACKAGE_ATTRIBUTES=`echo "${RPMRESULT}" | sed -n '"'"'$ ! s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t},/p; $ s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t}/p'"'"'`
+                RPMRESULT=$(rpm -qa --queryformat "%{NAME};%{EPOCH};%{VERSION};%{RELEASE};%{ARCH}\n")
+                PACKAGE_ATTRIBUTES=`echo "${RPMRESULT}" | sed -n '"'"'$ ! s/\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\).*$/\t\t{\n\t\t\t"name": "\1",\n\t\t\t"version": "\3"\n\t\t},/p; $ s/\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\).*/\t\t{\n\t\t\t"name": "\1",\n\t\t\t"version": "\3"\n\t\t}/p'"'"'`
             else
-                RPMRESULT=$(rpm -qa --queryformat "%{NAME};%{EPOCHNUM};%{VERSION};%{RELEASE};%{ARCH}\\n")
-                PACKAGE_ATTRIBUTES=`echo "${RPMRESULT}" | sed -n '"'"'$ ! s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t},/p; $ s/\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\);\\([^;]*\\).*/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\3"\\n\\t\\t}/p'"'"'`
+                RPMRESULT=$(rpm -qa --queryformat "%{NAME};%{EPOCHNUM};%{VERSION};%{RELEASE};%{ARCH}\n")
+                PACKAGE_ATTRIBUTES=`echo "${RPMRESULT}" | sed -n '"'"'$ ! s/\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\).*$/\t\t{\n\t\t\t"name": "\1",\n\t\t\t"version": "\3"\n\t\t},/p; $ s/\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\).*/\t\t{\n\t\t\t"name": "\1",\n\t\t\t"version": "\3"\n\t\t}/p'"'"'`
             fi
         fi
     fi
@@ -449,7 +449,7 @@ function apk_scan_package {
     log "Scanning installed packages with apk."
     if [ $PKGFORMAT == '"'"'apk'"'"' ]; then
         apkQuery=$(apk info -v)
-        PACKAGE_ATTRIBUTES=`echo "${apkQuery}" | sed -n '"'"'$ ! s/\\(.*\\)-\\([[:alnum:].]*\\)-\\([[:alnum:].]*\\)$/\\t\\t{\\n\\t\\t\\t"name": "\\1",\\n\\t\\t\\t"version": "\\2-\\3"\\n\\t\\t}/p'"'"'`
+        PACKAGE_ATTRIBUTES=`echo "${apkQuery}" | sed -n '"'"'$ ! s/\(.*\)-\([[:alnum:].]*\)-\([[:alnum:].]*\)$/\t\t{\n\t\t\t"name": "\1",\n\t\t\t"version": "\2-\3"\n\t\t}/p'"'"'`
     fi
 }
 
@@ -462,14 +462,14 @@ function make_upload_json_file {
     #   "version": "0.6.45-1ubuntu1",
     # }
     JSON="{
-    \\"name\\": \\"${PROFILENAME}-${MACHINEID}\\",
-    \\"os\\": \\"${OSNAME}-${OSVER}\\",
-    \\"packages\\":
+    \"name\": \"${PROFILENAME}-${MACHINEID}\",
+    \"os\": \"${OSNAME}-${OSVER}\",
+    \"packages\":
         [
 ${PACKAGE_ATTRIBUTES}
         ],
-    \\"tags\\": [
-        \\"${TAGS}\\"
+    \"tags\": [
+        \"${TAGS}\"
     ]
 }"
     echo "$JSON" > scanResults.json
@@ -509,7 +509,7 @@ function upload_profile {
     log "Uploading scan results with curl."
     IMPORT_URL="http://import.10.0.2.100.nip.io/?site_id=${SITE_ID}"
     CURLRET=$(curl -H "X-IMPORT-KEY: ${IMPORT_KEY}" --request POST --data @scanResults.json --cookie-jar cookies.txt "${IMPORT_URL}")
-    PROFILEID=`echo "${CURLRET}" | sed -n '"'"'s/.*\\("id":\\)"\\([[:alnum:]-]*\\)".*/\\2/p'"'"'`
+    PROFILEID=`echo "${CURLRET}" | sed -n '"'"'s/.*\("id":\)"\([[:alnum:]-]*\)".*/\2/p'"'"'`
 }
 
 function scan_and_upload {
