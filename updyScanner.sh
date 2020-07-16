@@ -29,10 +29,12 @@ function fail {
 
 function trim {
     TRIMED=`echo "$1" | sed -n 's/^[[:blank:]]*\(.*\)/\1/ ; s/[[:blank:]]*$//p'`
+    log "TRIMED=${TRIMED}"
 }
 
 function trim_and_to_lower {
     TRIMED=`echo "$1" | sed -n 's/^[[:blank:]]*\(.*\)/\L\1/ ; s/[[:blank:]]*$//p'`
+    log "TRIMED_AND_LOWER=${TRIMED}"
 }
 
 function split_lines {
@@ -40,6 +42,7 @@ function split_lines {
     IFS=$'\n'
     SPLITED=($1)
     IFS=$SAVEIFS
+    log "split_lines=${SPLITED[@]}"
 }
 
 function split_version {
@@ -47,6 +50,7 @@ function split_version {
     IFS=$'. \t\n'
     SPLITED=($1)
     IFS=$SAVEIFS
+    log "split_version=${SPLITED[@]}"
 }
 
 function stringContain { [ -z "$1" ] || { [ -z "${2##*$1*}" ] && [ -n "$2" ];};}
@@ -132,9 +136,9 @@ function detectRedhatBased {
         #   e.g.
 		#   Oracle Linux Server release 8.2
         log "/etc/redhat-release = ${RELCHECK}"
-        REGEX_MATCHES=`echo "${RELCHECK}" | sed -n 's/^\(.*\)[[:space:]]release[[:space:]]\([[:digit:]][[:digit:].]*\).*/\1\n\2/p'`
-        trim_and_to_lower "${REGEX_MATCHES}"
-        split_lines "${TRIMED}"
+        trim_and_to_lower "${RELCHECK}"
+        REGEX_MATCHES=`echo "${TRIMED}" | sed -n 's/^\(.*\)[[:space:]]release[[:space:]]\([[:digit:]][[:digit:].]*\).*/\1\n\2/p'`
+        split_lines "${REGEX_MATCHES}"
         if [ ${#SPLITED[@]} -eq 2 ]; then
             if [ "${SPLITED[0]}" == "centos" ] || [ "${SPLITED[0]}" == "centos linux" ]; then
                 OSNAME="centos"
