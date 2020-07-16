@@ -664,8 +664,8 @@ check_bash() {
         fi
     fi
 }
-BASH_READY=F
+BASH_READY="F"
 check_bash
-if [ BASH_READY == "T" ]; then
+if [ "${BASH_READY}" == "T" ]; then
     /bin/bash -c "${PAYLOAD}" "payload" "$@"
 fi
