@@ -559,11 +559,8 @@ function scan_and_upload {
 }
 
 #====================Parse Arguments===================
-echo "$0" "$@"
 while :; do
-    echo "$OPTIND"
     while getopts "k:i:t:n:" o; do
-        echo "${o} $OPTARG"
         case "${o}" in
             k)
                 IMPORT_KEY=${OPTARG}
@@ -615,7 +612,6 @@ get_machineid
 scan_and_upload
 HERE_EOF
 )
-echo "$0" "$@"
 check_bash() {
     BASHTEST=`ls /bin/bash >/dev/null 2>&1`
     RET=$? # returns 0 if path exists
