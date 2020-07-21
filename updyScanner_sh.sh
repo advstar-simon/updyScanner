@@ -612,7 +612,6 @@ get_machineid
 scan_and_upload
 HERE_EOF
 )
-
 check_bash() {
     BASHTEST=`ls /bin/bash >/dev/null 2>&1`
     RET=$? # returns 0 if path exists
@@ -655,5 +654,5 @@ check_bash() {
 BASH_READY="F"
 check_bash
 if [ "${BASH_READY}" = "T" ]; then
-    /bin/bash -c "${BASH_CODE}" BASH_CODE "$0 $@"
+    /bin/bash -c "${BASH_CODE}" "$0" "$@"
 fi
