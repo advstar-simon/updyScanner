@@ -559,27 +559,29 @@ function scan_and_upload {
 }
 
 #====================Parse Arguments===================
-while getopts "k:i:t:n:" o; do
-    case "${o}" in
-        k)
-            IMPORT_KEY=${OPTARG}
-            ;;
-        i)
-            SITE_ID=${OPTARG}
-            ;;
-        t)
-            TAGS=${OPTARG}
-            ;;
-        n)
-            PROFILENAME=${OPTARG}
-            ;;        
-        *)
-            usage
-            ;;
-    esac
+while :; do
+    while getopts "k:i:t:n:" o; do
+        case "${o}" in
+            k)
+                IMPORT_KEY=${OPTARG}
+                ;;
+            i)
+                SITE_ID=${OPTARG}
+                ;;
+            t)
+                TAGS=${OPTARG}
+                ;;
+            n)
+                PROFILENAME=${OPTARG}
+                ;;        
+            h)
+                usage
+                ;;
+        esac
+    done
+    ((OPTIND++)) 
+    [ $OPTIND -gt $# ] && break
 done
-shift $((OPTIND-1))
-
 
 if [ -z "${IMPORT_KEY}" ] || [ -z "${SITE_ID}" ]; then
     log "NOTE: Without providing [import key] and [site ID] parameters, scan results need to be uploaded to updy.io web portal manually."
