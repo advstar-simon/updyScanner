@@ -658,5 +658,5 @@ check_bash() {
 BASH_READY="F"
 check_bash
 if [ "${BASH_READY}" = "T" ]; then
-    /bin/bash -c "${BASH_CODE}" "$0" "$@"
+    /bin/bash -c "${BASH_CODE}" "bash_code" "$0" "$@"
 fi
